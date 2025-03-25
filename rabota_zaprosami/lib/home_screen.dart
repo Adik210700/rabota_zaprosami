@@ -1,6 +1,9 @@
+
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:rabota_zaprosami/picture_model.dart';
+
+import 'package:rabota_zaprosami/user_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,11 +13,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  PictureModel? _picture;
+  List<UserModel>? _users;
   Future<void> fetchPicture() async {
     final dio = Dio();
-    final result = await dio.get('https://dog.ceo/api/breeds/image/random');
-    _picture = PictureModel.fromMap(result.data);
+    final result = await dio.get('https://jsonplaceholder.typicode.com/users');
+    _users = (result.data as List<dynamic>)
+        .map((e) => UserModel.fromMap(e))
+        .toList();
     setState(() {});
   }
 
@@ -26,16 +31,20 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _picture == null
+            _users == null
                 ? Container(
                     height: 300,
                     width: 300,
                     color: Colors.red,
                   )
-                : SizedBox(
-                    width: 300,
-                    height: 300,
-                    child: Image.network(_picture?.message ?? ''),
+                : Expanded(
+                    child: ListView.builder(
+                        itemCount: _users?.length ?? 0,
+                        itemBuilder: (context, index) => ListTile(
+                              leading: Text(index.toString()),
+                              title: Text(_users?[index].name ?? ''),
+                              subtitle: Text(_users?[index].userName ?? ''),
+                            )),
                   ),
             SizedBox(
               height: 50,
